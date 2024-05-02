@@ -6,6 +6,29 @@ import zipfile
 
 from .distribution import Distribution
 
+class NoSuchFile(ValueError):
+    def __init__(self, fqp):
+        self.fqp = fqp
+        super().__init__(f'No such file: {fqp}')
+
+class UnknownArchiveFormat(ValueError):
+    def __init__(self, fqp):
+        self.fqp = fqp
+        super().__init__(f'Not a known archive format: {fqp}')
+
+class NoValidPkgInfo(ValueError):
+    def __init__(self, fqp, num_candidates):
+        self.fqp = fqp
+        self.num_candidates = num_candidates
+        super().__init__(f'No PKG-INFO in archive: {fqp}')
+
+class InvalidUnpackedSDist(ValueError):
+    def __init__(self, fqp, raised):
+        self.fqp = fqp
+        super().__init__(
+            f'Could not load {fqp} as an unpacked sdist: {raised}'
+        )
+
 class SDist(Distribution):
 
     def __init__(self, filename, metadata_version=None):
@@ -16,7 +39,7 @@ class SDist(Distribution):
     @staticmethod
     def _get_archive(fqp):
         if not fqp.exists():
-            raise ValueError('No such file: %s' % fqp)
+            raise NoSuchFile(fqp)
 
         if zipfile.is_zipfile(fqp):
             archive = zipfile.ZipFile(fqp)
@@ -29,7 +52,7 @@ class SDist(Distribution):
             def read_file(name):
                 return archive.extractfile(name).read()
         else:
-            raise ValueError('Not a known archive format: %s' % fqp)
+            raise UnknownArchiveFormat(fqp)
 
         return archive, names, read_file
 
@@ -50,7 +73,7 @@ class SDist(Distribution):
         finally:
             archive.close()
 
-        raise ValueError('No PKG-INFO in archive: %s' % fqp)
+        raise NoValidPkgInfo(self.filename, len(tuples))
 
 
 class UnpackedSDist(SDist):
@@ -62,7 +85,7 @@ class UnpackedSDist(SDist):
         elif file_path.is_file():
             filename = file_path.parent
         else:
-            raise ValueError('No such file: %s' % filename)
+            raise NoSuchFile(filename)
 
         super(UnpackedSDist, self).__init__(
                 filename, metadata_version=metadata_version)

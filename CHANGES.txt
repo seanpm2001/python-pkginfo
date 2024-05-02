@@ -1,6 +1,12 @@
 ``pkginfo`` Changelog
 =====================
 
+1.11.0 (unreleased)
+-------------------
+
+- Improve exception message when failing to find a valid 'PKG-INFO' file
+  within an 'sdist' archive.  LP #2064652.
+
 1.10.0 (2024-03-03)
 -------------------
 
