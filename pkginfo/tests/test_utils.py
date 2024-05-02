@@ -124,6 +124,7 @@ def test_get_metadata_w_package_name_and_metadata_version():
     _checkClassifiers(None, dist)
 
 def test_get_metadata_w_directory_no_EGG_INFO(here):
+    from pkginfo.distribution import UnknownMetadataVersion
     from pkginfo.utils import get_metadata
 
     subdir = str(here / 'funny')
@@ -135,8 +136,9 @@ def test_get_metadata_w_directory_no_EGG_INFO(here):
     assert(dist.name == None)
     assert(dist.version == None)
 
-    assert(len(warned) == 1)
+    assert(len(warned) == 2)
     assert str(warned[0].message).startswith('No PKG-INFO found')
+    assert warned[1].category is UnknownMetadataVersion
 
 def test_get_metadata_w_directory(here):
     from pkginfo.utils import get_metadata

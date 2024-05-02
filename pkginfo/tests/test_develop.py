@@ -11,6 +11,7 @@ def test_develop_ctor_w_path():
 
 def test_develop_ctor_w_invalid_path():
     import warnings 
+    from pkginfo.distribution import UnknownMetadataVersion
 
     with warnings.catch_warnings(record=True) as warned:
         develop = _make_develop('/nonesuch')
@@ -19,5 +20,6 @@ def test_develop_ctor_w_invalid_path():
     assert(develop.name == None)
     assert(develop.version == None)
 
-    assert len(warned) == 1
+    assert len(warned) == 2
     assert str(warned[0].message).startswith('No PKG-INFO found')
+    assert warned[1].category is UnknownMetadataVersion

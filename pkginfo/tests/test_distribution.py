@@ -1,3 +1,5 @@
+import warnings
+
 import pytest
 
 def test__must_decode_w_bytes_latin1():
@@ -86,6 +88,40 @@ def test_distribution_read_raises_NotImplementedError():
     with pytest.raises(NotImplementedError):
         dist.read()
 
+def test_distribution__getHeaderAttrs_hit():
+    from pkginfo.distribution import HEADER_ATTRS_1_0
+
+    dist = _make_distribution()
+    assert dist._getHeaderAttrs() == HEADER_ATTRS_1_0
+
+def test_distribution__getHeaderAttrs_miss_unknown():
+    from pkginfo.distribution import UnknownMetadataVersion
+
+    NONESUCH = "nonesuch"
+
+    dist = _make_distribution(NONESUCH)
+    with warnings.catch_warnings(record=True) as warned:
+        assert dist._getHeaderAttrs() == ()
+
+    assert len(warned) == 1
+    assert warned[0].category is UnknownMetadataVersion
+    assert NONESUCH in str(warned[0].message)
+
+def test_distribution__getHeaderAttrs_miss_new():
+    from pkginfo.distribution import HEADER_ATTRS
+    from pkginfo.distribution import MAX_METADATA_VERSION_STR
+    from pkginfo.distribution import NewMetadataVersion
+
+    HIGH_VERSION = "99.99"
+
+    dist = _make_distribution(HIGH_VERSION)
+    with warnings.catch_warnings(record=True) as warned:
+        assert dist._getHeaderAttrs() == HEADER_ATTRS[MAX_METADATA_VERSION_STR]
+
+    assert len(warned) == 1
+    assert warned[0].category is NewMetadataVersion
+    assert HIGH_VERSION in str(warned[0].message)
+
 def test_distribution_parse_given_unicode():
     dist = _make_distribution()
     dist.parse(u'Metadata-Version: 1.0\nName: lp722928_c3') # no raise
@@ -133,10 +169,19 @@ def test_distribution_parse_Metadata_Version_2_3():
     assert list(dist) == [x[1] for x in HEADER_ATTRS_2_3]
 
 def test_distribution_parse_Metadata_Version_unknown():
+    from pkginfo.distribution import UnknownMetadataVersion
+
     dist = _make_distribution(None)
-    dist.parse('Metadata-Version: 1.3')
+
+    with warnings.catch_warnings(record=True) as warned:
+        dist.parse('Metadata-Version: 1.3')
+        assert list(dist) == []
+
     assert dist.metadata_version == '1.3'
-    assert list(dist) == []
+
+    assert len(warned) == 1
+    assert warned[0].category is UnknownMetadataVersion
+    assert "1.3" in str(warned[0].message)
 
 def test_distribution_parse_Metadata_Version_override():
     dist = _make_distribution('1.2')

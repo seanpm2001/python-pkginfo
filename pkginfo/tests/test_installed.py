@@ -15,6 +15,8 @@ def _make_installed(filename=None, metadata_version=None):
     return Installed(filename)
 
 def test_installed_ctor_w_package_no___file__():
+    from pkginfo.distribution import UnknownMetadataVersion
+
     with warnings.catch_warnings(record=True) as warned:
 
         installed = _make_installed(sys)
@@ -23,8 +25,9 @@ def test_installed_ctor_w_package_no___file__():
     assert(installed.package_name == 'sys')
     assert(installed.metadata_version == None)
 
-    assert(len(warned) == 1)
+    assert(len(warned) == 2)
     assert str(warned[0].message).startswith('No PKG-INFO found')
+    assert warned[1].category is UnknownMetadataVersion
 
 def test_installed_ctor_w_package():
     import pkginfo
@@ -41,6 +44,7 @@ def test_installed_ctor_w_package():
     _checkSample(None, installed)
 
 def test_installed_ctor_w_no___package___falls_back_to___name__():
+    from pkginfo.distribution import UnknownMetadataVersion
 
     with warnings.catch_warnings(record=True) as warned:
         installed = _make_installed(wsgiref)
@@ -49,10 +53,13 @@ def test_installed_ctor_w_no___package___falls_back_to___name__():
     assert(installed.package_name == 'wsgiref')
     assert(installed.metadata_version == None)
 
-    assert(len(warned) == 1)
+    assert(len(warned) == 2)
     assert str(warned[0].message).startswith('No PKG-INFO found')
+    assert warned[1].category is UnknownMetadataVersion
 
 def test_installed_ctor_w_package_no_PKG_INFO():
+    from pkginfo.distribution import UnknownMetadataVersion
+
     with warnings.catch_warnings(record=True) as warned:
         installed = _make_installed(types)
 
@@ -60,8 +67,9 @@ def test_installed_ctor_w_package_no_PKG_INFO():
     assert(installed.package_name == 'types')
     assert(installed.metadata_version == None)
 
-    assert(len(warned) == 1)
+    assert(len(warned) == 2)
     assert str(warned[0].message).startswith('No PKG-INFO found')
+    assert warned[1].category is UnknownMetadataVersion
 
 def test_installed_ctor_w_package_and_metadata_version():
     import pkginfo
@@ -98,6 +106,8 @@ def test_installed_ctor_w_name_and_metadata_version():
     _checkSample(None, installed)
 
 def test_installed_ctor_w_invalid_name():
+    from pkginfo.distribution import UnknownMetadataVersion
+
     with warnings.catch_warnings(record=True) as warned:
         installed = _make_installed('nonesuch')
 
@@ -105,8 +115,9 @@ def test_installed_ctor_w_invalid_name():
     assert(installed.package_name == 'nonesuch')
     assert(installed.metadata_version == None)
 
-    assert(len(warned) == 1)
+    assert(len(warned) == 2)
     assert str(warned[0].message).startswith('No PKG-INFO found')
+    assert warned[1].category is UnknownMetadataVersion
 
 def test_installed_ctor_w_egg_info_as_file():
     import pkginfo.tests.funny
