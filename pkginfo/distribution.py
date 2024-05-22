@@ -100,7 +100,10 @@ METADATA_VERSIONS = [
 ]
 
 MAX_METADATA_VERSION = max(METADATA_VERSIONS)
-MAX_METADATA_VERSION_STR = max(HEADER_ATTRS.keys())
+# See: https://bugs.launchpad.net/bugs/2066340
+MAX_METADATA_VERSION_STR = ".".join(
+    str(element) for element in MAX_METADATA_VERSION
+)
 
 
 class UnknownMetadataVersion(UserWarning):
