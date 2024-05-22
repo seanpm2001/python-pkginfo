@@ -32,6 +32,123 @@ def test__must_decode_w_object():
     decoded = _must_decode(ARG)
     assert decoded is ARG
 
+def test__collapse_leading_ws_w_descr_one_line_wo_leading_ws():
+    from pkginfo.distribution import _collapse_leading_ws
+
+    DESCRIPTION = """\
+This is a description without newlines or leading whitespace."""
+    assert _collapse_leading_ws(
+        "Description", DESCRIPTION) == DESCRIPTION
+
+def test__collapse_leading_ws_w_descr_one_line_w_leading_ws():
+    from pkginfo.distribution import _collapse_leading_ws
+
+    DESCRIPTION = """\
+        This is a description with leading whitespace: strip it."""
+    assert _collapse_leading_ws(
+        "Description", DESCRIPTION) == DESCRIPTION.strip()
+
+def test__collapse_leading_ws_w_descr_multi_line_wo_leading_ws():
+    from pkginfo.distribution import _collapse_leading_ws
+
+    DESCRIPTION = """\
+This is a description with newlines but without leading whitespace.
+
+We expect the newlines to be preserved."""
+    assert _collapse_leading_ws(
+        "Description", DESCRIPTION) == DESCRIPTION
+
+def test__collapse_leading_ws_w_descr_multi_line_w_leading_ws():
+    from pkginfo.distribution import _collapse_leading_ws
+
+    DESCRIPTION = """\
+        This is a description with newlines and leading whitespace.
+
+        The newlines should be preserved, and the whitespace stripped"""
+
+    EXPECTED = """\
+This is a description with newlines and leading whitespace.
+
+The newlines should be preserved, and the whitespace stripped"""
+
+    assert _collapse_leading_ws(
+        "Description", DESCRIPTION) == EXPECTED
+
+def test__collapse_leading_ws_w_descr_multi_line_w_mixed_leading_ws():
+    from pkginfo.distribution import _collapse_leading_ws
+
+    DESCRIPTION = """This is a description with newlines.
+
+        Some lines have leading whitespace.
+
+        The newlines should be preserved, and the whitespace stripped"""
+
+    EXPECTED = """\
+This is a description with newlines.
+
+Some lines have leading whitespace.
+
+The newlines should be preserved, and the whitespace stripped"""
+
+    assert _collapse_leading_ws(
+        "Description", DESCRIPTION) == EXPECTED
+
+def test__collapse_leading_ws_w_other_one_line_wo_leading_ws():
+    from pkginfo.distribution import _collapse_leading_ws
+
+    OTHER = """\
+This is a field value without newlines or leading whitespace."""
+    assert _collapse_leading_ws(
+        "Other", OTHER) == OTHER
+
+def test__collapse_leading_ws_w_other_one_line_w_leading_ws():
+    from pkginfo.distribution import _collapse_leading_ws
+
+    OTHER = """\
+        This is a field value with leading whitespace: strip it."""
+    assert _collapse_leading_ws(
+        "Other", OTHER) == OTHER.strip()
+
+def test__collapse_leading_ws_w_other_multi_line_wo_leading_ws():
+    from pkginfo.distribution import _collapse_leading_ws
+
+    OTHER = """\
+This is a field value with newlines.
+
+We expect them to be converted to spaces."""
+    EXPECTED = (
+        "This is a field value with newlines.  "
+        "We expect them to be converted to spaces."
+    )
+    assert _collapse_leading_ws(
+        "Other", OTHER) == EXPECTED
+
+def test__collapse_leading_ws_w_other_multi_line_w_leading_ws():
+    from pkginfo.distribution import _collapse_leading_ws
+
+    OTHER = """\
+This is a field value with newlines and leading whitespace.
+
+We expect newlines to be converted to spaces.
+
+We expect the leading whitespace to be stripped."""
+    EXPECTED = (
+        "This is a field value with newlines and leading whitespace.  "
+        "We expect newlines to be converted to spaces.  "
+        "We expect the leading whitespace to be stripped."
+    )
+    assert _collapse_leading_ws(
+        "Other", OTHER) == EXPECTED
+
+def test__collapse_leading_ws_w_other_one_line_w_leading_ws():
+    from pkginfo.distribution import _collapse_leading_ws
+
+    OTHER = """\
+        This is a field value with leading whitespace: strip it."""
+    assert _collapse_leading_ws(
+        "Other", OTHER) == OTHER.strip()
+
+
 def _make_distribution(metadata_version='1.0'):
     from pkginfo.distribution import Distribution
 
