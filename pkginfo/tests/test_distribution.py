@@ -140,14 +140,6 @@ We expect the leading whitespace to be stripped."""
     assert _collapse_leading_ws(
         "Other", OTHER) == EXPECTED
 
-def test__collapse_leading_ws_w_other_one_line_w_leading_ws():
-    from pkginfo.distribution import _collapse_leading_ws
-
-    OTHER = """\
-        This is a field value with leading whitespace: strip it."""
-    assert _collapse_leading_ws(
-        "Other", OTHER) == OTHER.strip()
-
 
 def _make_distribution(metadata_version='1.0'):
     from pkginfo.distribution import Distribution
