@@ -4,6 +4,8 @@
 1.11.0 (unreleased)
 -------------------
 
+- Add support for Python 3.13.
+
 - Drop support for Python 3.7.
 
 - Emit warnings for distributions parsed with unknown metadata versions,
