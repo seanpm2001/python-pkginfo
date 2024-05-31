@@ -16,11 +16,19 @@ class UnknownArchiveFormat(ValueError):
         self.fqp = fqp
         super().__init__(f'Not a known archive format: {fqp}')
 
-class NoValidPkgInfo(ValueError):
-    def __init__(self, fqp, num_candidates):
+class InvalidPkgInfo(ValueError):
+    def __init__(self, fqp, candidates):
         self.fqp = fqp
-        self.num_candidates = num_candidates
-        super().__init__(f'No PKG-INFO in archive: {fqp}')
+        self.candidates = candidates
+        super().__init__(
+            f'Invalid PKG-INFO in archive: {fqp} '
+            f'(no "Metadata-Version" found)'
+        )
+
+class NoPkgInfo(ValueError):
+    def __init__(self, fqp):
+        self.fqp = fqp
+        super().__init__(f'No PKG-INFO found in archive: {fqp}')
 
 class InvalidUnpackedSDist(ValueError):
     def __init__(self, fqp, raised):
@@ -73,7 +81,10 @@ class SDist(Distribution):
         finally:
             archive.close()
 
-        raise NoValidPkgInfo(self.filename, len(tuples))
+        if len(tuples) > 0:
+            raise InvalidPkgInfo(self.filename, tuples)
+
+        raise NoPkgInfo(self.filename)
 
 
 class UnpackedSDist(SDist):
@@ -96,5 +107,4 @@ class UnpackedSDist(SDist):
             with io.open(pkg_info, errors='ignore') as f:
                 return f.read()
         except Exception as e:
-            raise ValueError('Could not load %s as an unpacked sdist: %s'
-                                % (self.filename, e))
+            raise InvalidUnpackedSDist(self.filename, e)

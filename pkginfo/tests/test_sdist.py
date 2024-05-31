@@ -62,16 +62,35 @@ def unpacked_dir(temp_dir, archive):
 
 @pytest.mark.parametrize("factory", [_make_sdist, _make_unpacked_sdist])
 def test_sdist_ctor_w_invalid_filename(examples_dir, factory):
+    from pkginfo.sdist import NoSuchFile
+
     filename = examples_dir / 'nonesuch-0.1.tar.gz'
 
-    with pytest.raises(ValueError):
+    with pytest.raises(NoSuchFile):
         factory(filename)
 
 @pytest.mark.parametrize("factory", [_make_sdist, _make_unpacked_sdist])
 def test_sdist_ctor_wo_PKG_INFO(examples_dir, factory):
+    if factory is _make_sdist:
+        from pkginfo.sdist import NoPkgInfo as to_raise
+    else:
+        from pkginfo.sdist import InvalidUnpackedSDist as to_raise
+
     filename = examples_dir / 'nopkginfo-0.1.zip'
 
-    with pytest.raises(ValueError):
+    with pytest.raises(to_raise):
+        factory(filename)
+
+@pytest.mark.parametrize("factory", [_make_sdist, _make_unpacked_sdist])
+def test_sdist_ctor_w_invalid_PKG_INFO(examples_dir, factory):
+    if factory is _make_sdist:
+        from pkginfo.sdist import InvalidPkgInfo as to_raise
+    else:
+        from pkginfo.sdist import InvalidUnpackedSDist as to_raise
+
+    filename = examples_dir / 'invpkginfo-0.1.zip'
+
+    with pytest.raises(to_raise):
         factory(filename)
 
 @pytest.mark.parametrize("factory", [_make_sdist, _make_unpacked_sdist])
