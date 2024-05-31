@@ -4,6 +4,8 @@
 1.11.0 (unreleased)
 -------------------
 
+- Drop support for Python 3.7.
+
 - Emit warnings for distributions parsed with unknown metadata versions,
   or metadata versions newer than highest supported version.
   LP #2058697.

@@ -2,10 +2,7 @@
 
 
 def _checkSample(_, installed):
-    try:
-        from importlib import metadata as importlib_metadata
-    except ImportError:  # python < 3.8
-        import importlib_metadata
+    from importlib import metadata as importlib_metadata
 
     version = importlib_metadata.version('pkginfo')
     assert(installed.version == version)
@@ -19,7 +16,6 @@ def _checkClassifiers(_, installed):
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
